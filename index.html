@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Algorithm Life</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #151515;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --text-tertiary: #6b6b6b;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #8b5cf6;
+            --accent-highlight: #ec4899;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-medium: rgba(255, 255, 255, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+
+        /* Typography */
+        .display {
+            font-family: 'Libre Baskerville', serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            line-height: 1.1;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+
+        .subtitle {
+            font-size: clamp(1.125rem, 2.5vw, 1.375rem);
+            line-height: 1.5;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-bottom: 48px;
+        }
+
+        .label {
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            color: var(--text-tertiary);
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        /* Intro Screen */
+        .screen {
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .intro-content {
+            text-align: center;
+            padding: 80px 0;
+        }
+
+        .context-note {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 24px;
+            margin: 48px 0;
+            font-size: 0.9375rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+
+        .context-note strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-medium);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
+        /* Character Selection */
+        .character-grid {
+            display: grid;
+            gap: 16px;
+            margin: 48px 0;
+        }
+
+        .character-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 32px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .character-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .character-card:hover {
+            border-color: var(--border-medium);
+            transform: translateY(-4px);
+        }
+
+        .character-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .character-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .character-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .character-age {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+        }
+
+        .character-emoji {
+            font-size: 2.5rem;
+            opacity: 0.9;
+        }
+
+        .character-bio {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .character-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .stat {
+            font-size: 0.8125rem;
+        }
+
+        .stat-label {
+            color: var(--text-tertiary);
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Story Chapter */
+        .chapter-header {
+            margin-bottom: 48px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .chapter-number {
+            color: var(--text-tertiary);
+            margin-bottom: 16px;
+        }
+
+        .chapter-title {
+            font-family: 'Libre Baskerville', serif;
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        .chapter-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 48px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+        }
+
+        .status-item {
+            text-align: center;
+        }
+
+        .status-label {
+            font-size: 0.8125rem;
+            color: var(--text-tertiary);
+            margin-bottom: 6px;
+        }
+
+        .status-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Narrative */
+        .narrative {
+            font-size: 1.0625rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 48px;
+        }
+
+        .narrative p {
+            margin-bottom: 24px;
+        }
+
+        .narrative p:last-child {
+            margin-bottom: 0;
+        }
+
+        .narrative strong {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Real-world Context Box */
+        .reality-check {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 32px 0;
+        }
+
+        .reality-check-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .reality-check-content {
+            font-size: 0.9375rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+
+        /* Choices */
+        .choice-prompt {
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+        }
+
+        .choice-list {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 48px;
+        }
+
+        .choice {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .choice:hover {
+            border-color: var(--border-medium);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .choice-title {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .choice-description {
+            font-size: 0.9375rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .choice-impact {
+            font-size: 0.8125rem;
+            color: var(--text-tertiary);
+            padding-top: 12px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        /* Outcome */
+        .outcome {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(236, 72, 153, 0.2);
+            border-radius: 12px;
+            padding: 32px;
+            margin: 32px 0;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .outcome-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent-highlight);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .outcome-text {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .outcome-text:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Algorithm Insight */
+        .algorithm-insight {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 3px solid var(--accent-secondary);
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .algorithm-insight-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--accent-secondary);
+            margin-bottom: 12px;
+        }
+
+        .algorithm-insight-text {
+            font-size: 0.9375rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+
+        /* Progress Indicator */
+        .progress {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 32px 0;
+        }
+
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border-medium);
+            transition: all 0.3s ease;
+        }
+
+        .progress-dot.active {
+            width: 24px;
+            border-radius: 4px;
+            background: var(--text-primary);
+        }
+
+        .progress-dot.completed {
+            background: var(--text-tertiary);
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            gap: 12px;
+            margin-top: 48px;
+        }
+
+        /* Utility */
+        .hidden {
+            display: none;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .container {
+                padding: 40px 20px;
+            }
+
+            .character-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .nav {
+                flex-direction: column;
+            }
+        }
+
+        /* Loading Animation */
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Intro Screen -->
+        <div id="introScreen" class="screen">
+            <div class="intro-content">
+                <div class="label">An Interactive Experience</div>
+                <h1 class="display">The Algorithm Life</h1>
+                <p class="subtitle">
+                    One person. Five systems. A lifetime of algorithmic decisions.
+                </p>
+
+                <div class="context-note">
+                    <strong>Based on reality:</strong> In 2024, <strong>98% of Fortune 500 companies</strong> use algorithmic hiring systems. 
+                    Dynamic pricing affects <strong>$15 billion in concert ticket sales</strong> annually. 
+                    <strong>43 million Americans</strong> have been denied housing based on algorithmic tenant screening. 
+                    And <strong>91% of dating app matches</strong> are controlled by algorithms you never see.
+                </div>
+
+                <button class="btn btn-primary" onclick="startGame()">Begin</button>
+            </div>
+        </div>
+
+        <!-- Character Selection -->
+        <div id="characterScreen" class="screen hidden">
+            <div class="label">Step 1</div>
+            <h2 class="display">Choose your character</h2>
+            <p class="subtitle">Same systems. Different starting points. Dramatically different outcomes.</p>
+
+            <div class="character-grid">
+                <div class="character-card" onclick="selectCharacter('maya')">
+                    <div class="character-header">
+                        <div>
+                            <div class="character-name">Maya Chen</div>
+                            <div class="character-age">24 • San Francisco</div>
+                        </div>
+                        <div class="character-emoji">🎓</div>
+                    </div>
+                    <p class="character-bio">
+                        Recent graduate from San Francisco State. First in her family to attend college. 
+                        Works three part-time gigs while applying to full-time roles. Shares a studio with two roommates. 
+                        Learned to code from free YouTube tutorials.
+                    </p>
+                    <div class="character-stats">
+                        <div class="stat">
+                            <div class="stat-label">Savings</div>
+                            <div class="stat-value">$2,400</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Network</div>
+                            <div class="stat-value">Building</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Credit Score</div>
+                            <div class="stat-value">680</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">LinkedIn</div>
+                            <div class="stat-value">247 connections</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="character-card" onclick="selectCharacter('james')">
+                    <div class="character-header">
+                        <div>
+                            <div class="character-name">James Wilson</div>
+                            <div class="character-age">38 • Chicago</div>
+                        </div>
+                        <div class="character-emoji">💼</div>
+                    </div>
+                    <p class="character-bio">
+                        Marketing director exploring new opportunities after a corporate restructure. 
+                        Two kids in elementary school. Recently separated. Financially stable but time-starved. 
+                        Strong professional network from 15 years in the industry.
+                    </p>
+                    <div class="character-stats">
+                        <div class="stat">
+                            <div class="stat-label">Savings</div>
+                            <div class="stat-value">$45,000</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Network</div>
+                            <div class="stat-value">Extensive</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Credit Score</div>
+                            <div class="stat-value">760</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">LinkedIn</div>
+                            <div class="stat-value">2,100+ connections</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="character-card" onclick="selectCharacter('aisha')">
+                    <div class="character-header">
+                        <div>
+                            <div class="character-name">Aisha Okafor</div>
+                            <div class="character-age">42 • Philadelphia</div>
+                        </div>
+                        <div class="character-emoji">🔄</div>
+                    </div>
+                    <p class="character-bio">
+                        Career switcher after 15 years teaching high school English. Completed a coding bootcamp last year. 
+                        Single parent to two teenagers. Limited savings after paying tuition. 
+                        Network is entirely in education, not tech.
+                    </p>
+                    <div class="character-stats">
+                        <div class="stat">
+                            <div class="stat-label">Savings</div>
+                            <div class="stat-value">$8,200</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Network</div>
+                            <div class="stat-value">Wrong industry</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Credit Score</div>
+                            <div class="stat-value">715</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">LinkedIn</div>
+                            <div class="stat-value">412 connections</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="character-card" onclick="selectCharacter('tyler')">
+                    <div class="character-header">
+                        <div>
+                            <div class="character-name">Tyler Morrison</div>
+                            <div class="character-age">26 • New York</div>
+                        </div>
+                        <div class="character-emoji">🎩</div>
+                    </div>
+                    <p class="character-bio">
+                        Yale graduate exploring opportunities after leaving McKinsey. 
+                        Trust fund covers rent. Father sits on three corporate boards. 
+                        Network includes college roommates now at Google, Goldman Sachs, and a16z. 
+                        Considering "passion projects."
+                    </p>
+                    <div class="character-stats">
+                        <div class="stat">
+                            <div class="stat-label">Savings</div>
+                            <div class="stat-value">$80,000+</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Network</div>
+                            <div class="stat-value">Elite</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Credit Score</div>
+                            <div class="stat-value">800</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">LinkedIn</div>
+                            <div class="stat-value">1,800+ connections</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Story Screen -->
+        <div id="storyScreen" class="screen hidden">
+            <div class="progress" id="progress"></div>
+            <div id="storyContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let state = {
+            character: null,
+            chapter: 0,
+            choices: {},
+            stats: {}
+        };
+
+        const characters = {
+            maya: {
+                name: "Maya Chen",
+                age: 24,
+                location: "San Francisco",
+                savings: 2400,
+                creditScore: 680,
+                network: "building",
+                linkedinConnections: 247
+            },
+            james: {
+                name: "James Wilson",
+                age: 38,
+                location: "Chicago",
+                savings: 45000,
+                creditScore: 760,
+                network: "extensive",
+                linkedinConnections: 2100
+            },
+            aisha: {
+                name: "Aisha Okafor",
+                age: 42,
+                location: "Philadelphia",
+                savings: 8200,
+                creditScore: 715,
+                network: "wrong industry",
+                linkedinConnections: 412
+            },
+            tyler: {
+                name: "Tyler Morrison",
+                age: 26,
+                location: "New York",
+                savings: 80000,
+                creditScore: 800,
+                network: "elite",
+                linkedinConnections: 1800
+            }
+        };
+
+        // Navigation
+        function startGame() {
+            hide('introScreen');
+            show('characterScreen');
+        }
+
+        function selectCharacter(id) {
+            state.character = id;
+            state.stats = { ...characters[id] };
+            hide('characterScreen');
+            show('storyScreen');
+            loadChapter(0);
+        }
+
+        function hide(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function show(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        // Progress Indicator
+        function updateProgress() {
+            const progress = document.getElementById('progress');
+            progress.innerHTML = Array(5).fill(0).map((_, i) => 
+                `<div class="progress-dot ${i < state.chapter ? 'completed' : i === state.chapter ? 'active' : ''}"></div>`
+            ).join('');
+        }
+
+        // Chapter Loading (simplified for now - you'll expand this)
+        function loadChapter(chapterIndex) {
+            state.chapter = chapterIndex;
+            updateProgress();
+            
+            const content = document.getElementById('storyContent');
+            const char = state.stats;
+            
+            // This is just the structure - you'll fill in actual content
+            content.innerHTML = `
+                <div class="chapter-header">
+                    <div class="chapter-number label">Chapter ${chapterIndex + 1} of 5</div>
+                    <h2 class="chapter-title">The Job Search</h2>
+                    <p class="chapter-subtitle">When algorithms decide your worth in 3 seconds</p>
+                </div>
+
+                <div class="status-bar">
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <div class="status-label">Savings</div>
+                            <div class="status-value">$${char.savings.toLocaleString()}</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">Credit</div>
+                            <div class="status-value">${char.creditScore}</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">Network</div>
+                            <div class="status-value">${char.linkedinConnections}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="narrative">
+                    <p>It's 11:47 PM. ${char.name.split(' ')[0]}, you're sitting at your ${char.savings < 10000 ? 'cramped kitchen table' : 'desk'}, laptop screen glowing in the dark.</p>
+                    
+                    <p>You've found it: <strong>"Senior Marketing Manager"</strong> at a tech company you've been following for months. The role is perfect. The salary would change everything${char.savings < 10000 ? ' — you could finally stop juggling three part-time jobs' : ''}.</p>
+                    
+                    <p>But here's what you know that the job posting doesn't say:</p>
+                </div>
+
+                <div class="reality-check">
+                    <div class="reality-check-title">Reality Check: Applicant Tracking Systems</div>
+                    <div class="reality-check-content">
+                        <strong>98.8% of Fortune 500</strong> companies use ATS software to screen resumes. On average, 
+                        <strong>75% of applications are rejected by algorithms</strong> before any human sees them. 
+                        The systems scan for keywords, reject employment gaps over 6 months, 
+                        and flag "non-traditional" backgrounds.
+                        <br><br>
+                        <em>Source: Harvard Business School, 2024</em>
+                    </div>
+                </div>
+
+                <div class="narrative">
+                    <p>Your application won't go to a human first. It'll be parsed, scored, and ranked by an algorithm in approximately 3.2 seconds.</p>
+                </div>
+
+                <div class="choice-prompt">What's your approach?</div>
+
+                <div class="choice-list">
+                    <div class="choice" onclick="makeChoice('approach', 'authentic')">
+                        <div class="choice-title">Write an authentic application</div>
+                        <div class="choice-description">
+                            Craft a genuine cover letter highlighting your unique journey${char.network === 'wrong industry' ? ' from teaching to tech' : ''}. 
+                            Let your real experience speak for itself.
+                        </div>
+                        <div class="choice-impact">
+                            ${char.creditScore < 700 || char.network === 'wrong industry' ? 
+                                '⚠️ Warning: Non-traditional paths often score lower in ATS systems' : 
+                                '✓ Your background aligns with typical candidate profiles'}
+                        </div>
+                    </div>
+
+                    <div class="choice" onclick="makeChoice('approach', 'optimize')">
+                        <div class="choice-title">Algorithm-optimize everything</div>
+                        <div class="choice-description">
+                            Use AI tools to analyze the job posting and saturate your resume with exact keyword matches. 
+                            Make yourself algorithmically irresistible.
+                        </div>
+                        <div class="choice-impact">
+                            💰 Cost: $49.99 for premium optimization tools
+                            ${char.savings < 5000 ? ' — that\'s significant for you' : ''}
+                        </div>
+                    </div>
+
+                    <div class="choice" onclick="makeChoice('approach', 'network')">
+                        <div class="choice-title">Skip the algorithm entirely</div>
+                        <div class="choice-description">
+                            ${char.network === 'elite' ? 
+                                'Text your former McKinsey colleague who now works there. Get an internal referral.' : 
+                            char.network === 'extensive' ? 
+                                'Find a mutual connection on LinkedIn who can refer you internally.' : 
+                            char.network === 'building' || char.network === 'wrong industry' ?
+                                'Cold message the hiring manager on LinkedIn despite having no connection.' :
+                                'Try to bypass the system somehow.'}
+                        </div>
+                        <div class="choice-impact">
+                            ${char.network === 'elite' || char.network === 'extensive' ? 
+                                '✓ Leverage your advantage — 84% of jobs are filled through networks' : 
+                                '⚠️ Low success rate without existing connections (<5%)'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function makeChoice(type, value) {
+            state.choices[`ch${state.chapter}_${type}`] = value;
+            // Show outcome, then continue
+            showOutcome(value);
+        }
+
+        function showOutcome(choice) {
+            const content = document.getElementById('storyContent');
+            content.innerHTML += `
+                <div class="outcome">
+                    <div class="outcome-title">What Happened</div>
+                    <div class="outcome-text">
+                        You chose the ${choice} approach. The outcome unfolds...
+                    </div>
+                    <div class="algorithm-insight">
+                        <div class="algorithm-insight-title">Behind the Algorithm</div>
+                        <div class="algorithm-insight-text">
+                            The ATS scored your application based on keyword density, 
+                            employment chronology, and pattern matching against "successful" hires...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nav">
+                    <button class="btn btn-primary" onclick="continueStory()">Continue →</button>
+                </div>
+            `;
+        }
+
+        function continueStory() {
+            if (state.chapter < 4) {
+                loadChapter(state.chapter + 1);
+            } else {
+                showEnding();
+            }
+        }
+
+        function showEnding() {
+            const content = document.getElementById('storyContent');
+            content.innerHTML = `
+                <div class="chapter-header">
+                    <h2 class="chapter-title">The End</h2>
+                    <p class="chapter-subtitle">Or is it just the beginning?</p>
+                </div>
+                <div class="text-center">
+                    <button class="btn btn-primary" onclick="location.reload()">
+                        Experience Another Life
+                    </button>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

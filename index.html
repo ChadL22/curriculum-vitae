@@ -261,16 +261,13 @@ textarea{resize:vertical}
 }
 .edu-row:last-child{border-bottom:none}
 
-/* Detail items (projects/pubs/achievements) */
-.detail-item{
-  background:var(--bg2);border:1px solid var(--border);
-  border-radius:7px;padding:14px;margin-bottom:10px;
-  transition:box-shadow 0.15s;
+/* List items (projects/pubs/achievements) */
+.list-item{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 0;border-bottom:1px solid var(--bg3);
+  font-size:13.5px;
 }
-.detail-item:hover{box-shadow:0 1px 6px rgba(0,0,0,0.04)}
-.di-title{font-weight:600;font-size:14px;color:var(--fg);margin-bottom:3px}
-.di-meta{font-size:12px;color:var(--fg3);line-height:1.5;margin-bottom:6px}
-.di-desc{font-size:13px;color:var(--fg2);line-height:1.6}
+.list-item:last-child{border-bottom:none}
 
 /* Checkbox */
 .chk{display:flex;align-items:center;gap:7px;padding-bottom:8px}
@@ -433,22 +430,10 @@ textarea{resize:vertical}
 <!-- ═══════ VIEW: RES GESTAE ═══════ -->
 <div class="view" id="view-resgestae">
   <div class="wb">
-    <div class="wb-hdr"><div><h2>Res Gestae</h2><p>Projects, publications, working papers, volunteer work, and achievements</p></div></div>
-    
-    <div class="sec-block"><div class="sec-hdr" onclick="togSec(this)"><h3>Projects <span class="badge" id="projects-n">0</span></h3><span style="font-size:11px;color:var(--fg4)">▾</span></div><div class="sec-body">
-      <div id="projects-list"></div>
-      <button class="btn btn-sm btn-ghost" onclick="addDetail('projects')" style="margin-top:6px">+ Add Project</button>
-    </div></div>
-
-    <div class="sec-block"><div class="sec-hdr" onclick="togSec(this)"><h3>Publications &amp; Working Papers <span class="badge" id="publications-n">0</span></h3><span style="font-size:11px;color:var(--fg4)">▾</span></div><div class="sec-body">
-      <div id="publications-list"></div>
-      <button class="btn btn-sm btn-ghost" onclick="addDetail('publications')" style="margin-top:6px">+ Add Publication</button>
-    </div></div>
-
-    <div class="sec-block"><div class="sec-hdr" onclick="togSec(this)"><h3>Achievements &amp; Recognition <span class="badge" id="achievements-n">0</span></h3><span style="font-size:11px;color:var(--fg4)">▾</span></div><div class="sec-body">
-      <div id="achievements-list"></div>
-      <button class="btn btn-sm btn-ghost" onclick="addDetail('achievements')" style="margin-top:6px">+ Add Achievement</button>
-    </div></div>
+    <div class="wb-hdr"><div><h2>Res Gestae</h2><p>Projects, publications, and notable achievements</p></div></div>
+    <div class="sec-block"><div class="sec-hdr" onclick="togSec(this)"><h3>Projects <span class="badge" id="projects-n">0</span></h3><span style="font-size:11px;color:var(--fg4)">▾</span></div><div class="sec-body"><div id="projects-list"></div><div class="tag-row"><input class="field-in" id="project-in" placeholder="Project name or description" style="flex:1" onkeydown="if(event.key==='Enter'){addTag('projects');event.preventDefault();}"><button class="btn btn-sm btn-ghost" onclick="addTag('projects')">Add</button></div></div></div>
+    <div class="sec-block"><div class="sec-hdr" onclick="togSec(this)"><h3>Publications <span class="badge" id="publications-n">0</span></h3><span style="font-size:11px;color:var(--fg4)">▾</span></div><div class="sec-body"><div id="publications-list"></div><div class="tag-row"><input class="field-in" id="publication-in" placeholder="e.g. 'Title', Journal, 2023" style="flex:1" onkeydown="if(event.key==='Enter'){addTag('publications');event.preventDefault();}"><button class="btn btn-sm btn-ghost" onclick="addTag('publications')">Add</button></div></div></div>
+    <div class="sec-block"><div class="sec-hdr" onclick="togSec(this)"><h3>Achievements <span class="badge" id="achievements-n">0</span></h3><span style="font-size:11px;color:var(--fg4)">▾</span></div><div class="sec-body"><div id="achievements-list"></div><div class="tag-row"><input class="field-in" id="achievement-in" placeholder="e.g. Presentation Excellence Award, 2024" style="flex:1" onkeydown="if(event.key==='Enter'){addTag('achievements');event.preventDefault();}"><button class="btn btn-sm btn-ghost" onclick="addTag('achievements')">Add</button></div></div></div>
   </div>
 </div>
 
@@ -569,48 +554,20 @@ function renderJobs(){
 }
 function ag(el){if(el.target)el=el.target;el.style.height='auto';el.style.height=el.scrollHeight+'px'}
 
-/* ═══════ TAGS & DETAILS ═══════ */
+/* ═══════ TAGS ═══════ */
 function rTags(t){
-  const isDetail=['projects','publications','achievements'].includes(t);
-  const c=$(isDetail?`#${t}-list`:`#${t}-tags`);if(!c)return;
-  if(isDetail){renderDetail(t);return}
-  c.innerHTML=(D[t]||[]).map((v,i)=>`<span class="tpill">${esc(v)}<button onclick="rmTag('${t}',${i})">×</button></span>`).join('');
+  const isList=['projects','publications','achievements'].includes(t);
+  const c=$(isList?`#${t}-list`:`#${t}-tags`);if(!c)return;
+  if(isList){c.innerHTML=(D[t]||[]).map((v,i)=>`<div class="list-item"><span style="flex:1">${esc(v)}</span><button class="blt-rm" onclick="rmTag('${t}',${i})" style="margin:0">×</button></div>`).join('')}
+  else{c.innerHTML=(D[t]||[]).map((v,i)=>`<span class="tpill">${esc(v)}<button onclick="rmTag('${t}',${i})">×</button></span>`).join('')}
   const b=$(`#${t}-n`);if(b)b.textContent=(D[t]||[]).length;
 }
 function addTag(t){
-  const map={skills:'skill-in',languages:'language-in',affiliations:'affiliation-in'};
+  const map={skills:'skill-in',languages:'language-in',affiliations:'affiliation-in',projects:'project-in',publications:'publication-in',achievements:'achievement-in'};
   const inp=$('#'+map[t]);if(!inp)return;const v=inp.value.trim();if(!v)return;
   if(!D[t])D[t]=[];D[t].push(v);inp.value='';save();rTags(t);
 }
 function rmTag(t,i){D[t].splice(i,1);save();rTags(t)}
-
-function addDetail(t){
-  if(!D[t])D[t]=[];
-  D[t].push({id:uid(),title:'',type:'',date:'',link:'',description:''});
-  save();renderDetail(t);
-}
-function uDetail(t,id,f,v){const d=D[t].find(x=>x.id===id);if(d){d[f]=v;save()}}
-function rmDetail(t,id){D[t]=D[t].filter(x=>x.id!==id);save();renderDetail(t)}
-function renderDetail(t){
-  const c=$(`#${t}-list`);if(!c)return;
-  c.innerHTML=(D[t]||[]).map(d=>`
-    <div class="card" style="margin-bottom:10px;padding:16px">
-      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
-        <div style="flex:1">
-          <div class="field"><label class="field-lbl">Title</label><input class="field-in" value="${esc(d.title)}" placeholder="${t==='projects'?'Project or tool name':t==='publications'?'Paper or publication title':'Achievement or award'}" oninput="uDetail('${t}','${d.id}','title',this.value)"></div>
-        </div>
-        <button class="btn btn-sm btn-rm" onclick="rmDetail('${t}','${d.id}')" style="margin-left:8px;margin-top:16px">Remove</button>
-      </div>
-      <div class="grid g2">
-        <div class="field"><label class="field-lbl">${t==='publications'?'Publication Type':'Category or Type'}</label><input class="field-in" value="${esc(d.type)}" placeholder="${t==='projects'?'Automation Testing, Open Source, QA':'Working Paper, Blog Post, Journal':'Award, Fellowship, Recognition'}" oninput="uDetail('${t}','${d.id}','type',this.value)"></div>
-        <div class="field"><label class="field-lbl">Date or Year</label><input class="field-in" value="${esc(d.date)}" placeholder="2024 or Mar 2024" oninput="uDetail('${t}','${d.id}','date',this.value)"></div>
-      </div>
-      <div class="field" style="margin-top:10px"><label class="field-lbl">Link (optional)</label><input class="field-in" value="${esc(d.link)}" placeholder="https://..." oninput="uDetail('${t}','${d.id}','link',this.value)"></div>
-      <div class="field" style="margin-top:10px"><label class="field-lbl">Description</label><textarea class="field-in" rows="2" placeholder="Details about this project, publication, or achievement..." oninput="uDetail('${t}','${d.id}','description',this.value)">${esc(d.description)}</textarea></div>
-    </div>
-  `).join('');
-  const b=$(`#${t}-n`);if(b)b.textContent=(D[t]||[]).length;
-}
 
 /* ═══════ EDUCATION ═══════ */
 function addEdu(){if(!D.education)D.education=[];D.education.push({id:uid(),degree:'',school:'',year:''});save();renderEdu()}
@@ -652,9 +609,9 @@ function renderCV(){
   if(D.skills.length)h+=`<div class="cv-sec-title">Skills</div><div class="cv-tags">${D.skills.map(s=>`<span class="cv-tag">${esc(s)}</span>`).join('')}</div>`;
   if(D.languages.length)h+=`<div class="cv-sec-title">Languages</div><div class="cv-detail">${D.languages.map(l=>esc(l)).join(' · ')}</div>`;
   if(D.affiliations.length)h+=`<div class="cv-sec-title">Affiliations</div><div class="cv-detail">${D.affiliations.map(a=>esc(a)).join(' · ')}</div>`;
-  if(D.projects.length){h+=`<div class="cv-sec-title">Projects</div>`;D.projects.forEach(p=>{h+=`<div style="margin-bottom:12px"><div style="font-weight:600;font-size:14px">${esc(p.title)}</div>${p.type?`<div style="font-size:12px;color:var(--fg3)">${esc(p.type)}${p.date?' · '+esc(p.date):''}</div>`:''}${p.description?`<div style="font-size:13px;color:var(--fg2);margin-top:3px">${esc(p.description)}</div>`:''}${p.link?`<div style="font-size:12px;margin-top:3px"><a href="${esc(p.link)}">${esc(p.link.replace(/^https?:\/\//,''))}</a></div>`:''}</div>`})}
-  if(D.publications.length){h+=`<div class="cv-sec-title">Publications &amp; Working Papers</div>`;D.publications.forEach(p=>{h+=`<div style="margin-bottom:12px"><div style="font-weight:600;font-size:14px">${esc(p.title)}</div>${p.type?`<div style="font-size:12px;color:var(--fg3)">${esc(p.type)}${p.date?' · '+esc(p.date):''}</div>`:''}${p.description?`<div style="font-size:13px;color:var(--fg2);margin-top:3px">${esc(p.description)}</div>`:''}${p.link?`<div style="font-size:12px;margin-top:3px"><a href="${esc(p.link)}">${esc(p.link.replace(/^https?:\/\//,''))}</a></div>`:''}</div>`})}
-  if(D.achievements.length){h+=`<div class="cv-sec-title">Achievements &amp; Recognition</div>`;D.achievements.forEach(a=>{h+=`<div style="margin-bottom:12px"><div style="font-weight:600;font-size:14px">${esc(a.title)}</div>${a.type?`<div style="font-size:12px;color:var(--fg3)">${esc(a.type)}${a.date?' · '+esc(a.date):''}</div>`:''}${a.description?`<div style="font-size:13px;color:var(--fg2);margin-top:3px">${esc(a.description)}</div>`:''}${a.link?`<div style="font-size:12px;margin-top:3px"><a href="${esc(a.link)}">${esc(a.link.replace(/^https?:\/\//,''))}</a></div>`:''}</div>`})}
+  if(D.projects.length){h+=`<div class="cv-sec-title">Projects</div>`;D.projects.forEach(p=>{h+=`<div class="cv-detail">· ${esc(p)}</div>`})}
+  if(D.publications.length){h+=`<div class="cv-sec-title">Publications</div>`;D.publications.forEach(p=>{h+=`<div class="cv-detail">· ${esc(p)}</div>`})}
+  if(D.achievements.length){h+=`<div class="cv-sec-title">Achievements</div>`;D.achievements.forEach(a=>{h+=`<div class="cv-detail">· ${esc(a)}</div>`})}
   el.innerHTML=h;
 }
 function downloadCV(){

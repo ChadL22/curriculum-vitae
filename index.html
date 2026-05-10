@@ -261,13 +261,16 @@ textarea{resize:vertical}
 }
 .edu-row:last-child{border-bottom:none}
 
-/* List items (projects/pubs/achievements) */
-.list-item{
-  display:flex;align-items:center;gap:8px;
-  padding:7px 0;border-bottom:1px solid var(--bg3);
-  font-size:13.5px;
+/* Detail items (projects/pubs/achievements) */
+.detail-item{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:7px;padding:14px;margin-bottom:10px;
+  transition:box-shadow 0.15s;
 }
-.list-item:last-child{border-bottom:none}
+.detail-item:hover{box-shadow:0 1px 6px rgba(0,0,0,0.04)}
+.di-title{font-weight:600;font-size:14px;color:var(--fg);margin-bottom:3px}
+.di-meta{font-size:12px;color:var(--fg3);line-height:1.5;margin-bottom:6px}
+.di-desc{font-size:13px;color:var(--fg2);line-height:1.6}
 
 /* Checkbox */
 .chk{display:flex;align-items:center;gap:7px;padding-bottom:8px}
@@ -430,10 +433,22 @@ textarea{resize:vertical}
 <!-- ═══════ VIEW: RES GESTAE ═══════ -->
 <div class="view" id="view-resgestae">
   <div class="wb">
-    <div class="wb-hdr"><div><h2>Res Gestae</h2><p>Projects, publications, and notable achievements</p></div></div>
-    <div class="sec-block"><div class="sec-hdr" onclick="togSec(this)"><h3>Projects <span class="badge" id="projects-n">0</span></h3><span style="font-size:11px;color:var(--fg4)">▾</span></div><div class="sec-body"><div id="projects-list"></div><div class="tag-row"><input class="field-in" id="project-in" placeholder="Project name or description" style="flex:1" onkeydown="if(event.key==='Enter'){addTag('projects');event.preventDefault();}"><button class="btn btn-sm btn-ghost" onclick="addTag('projects')">Add</button></div></div></div>
-    <div class="sec-block"><div class="sec-hdr" onclick="togSec(this)"><h3>Publications <span class="badge" id="publications-n">0</span></h3><span style="font-size:11px;color:var(--fg4)">▾</span></div><div class="sec-body"><div id="publications-list"></div><div class="tag-row"><input class="field-in" id="publication-in" placeholder="e.g. 'Title', Journal, 2023" style="flex:1" onkeydown="if(event.key==='Enter'){addTag('publications');event.preventDefault();}"><button class="btn btn-sm btn-ghost" onclick="addTag('publications')">Add</button></div></div></div>
-    <div class="sec-block"><div class="sec-hdr" onclick="togSec(this)"><h3>Achievements <span class="badge" id="achievements-n">0</span></h3><span style="font-size:11px;color:var(--fg4)">▾</span></div><div class="sec-body"><div id="achievements-list"></div><div class="tag-row"><input class="field-in" id="achievement-in" placeholder="e.g. Presentation Excellence Award, 2024" style="flex:1" onkeydown="if(event.key==='Enter'){addTag('achievements');event.preventDefault();}"><button class="btn btn-sm btn-ghost" onclick="addTag('achievements')">Add</button></div></div></div>
+    <div class="wb-hdr"><div><h2>Res Gestae</h2><p>Projects, publications, working papers, volunteer work, and achievements</p></div></div>
+    
+    <div class="sec-block"><div class="sec-hdr" onclick="togSec(this)"><h3>Projects <span class="badge" id="projects-n">0</span></h3><span style="font-size:11px;color:var(--fg4)">▾</span></div><div class="sec-body">
+      <div id="projects-list"></div>
+      <button class="btn btn-sm btn-ghost" onclick="addDetail('projects')" style="margin-top:6px">+ Add Project</button>
+    </div></div>
+
+    <div class="sec-block"><div class="sec-hdr" onclick="togSec(this)"><h3>Publications &amp; Working Papers <span class="badge" id="publications-n">0</span></h3><span style="font-size:11px;color:var(--fg4)">▾</span></div><div class="sec-body">
+      <div id="publications-list"></div>
+      <button class="btn btn-sm btn-ghost" onclick="addDetail('publications')" style="margin-top:6px">+ Add Publication</button>
+    </div></div>
+
+    <div class="sec-block"><div class="sec-hdr" onclick="togSec(this)"><h3>Achievements &amp; Recognition <span class="badge" id="achievements-n">0</span></h3><span style="font-size:11px;color:var(--fg4)">▾</span></div><div class="sec-body">
+      <div id="achievements-list"></div>
+      <button class="btn btn-sm btn-ghost" onclick="addDetail('achievements')" style="margin-top:6px">+ Add Achievement</button>
+    </div></div>
   </div>
 </div>
 

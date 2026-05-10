@@ -430,10 +430,10 @@ textarea{resize:vertical}
 <!-- ═══════ VIEW: RES GESTAE ═══════ -->
 <div class="view" id="view-resgestae">
   <div class="wb">
-    <div class="wb-hdr"><div><h2>Res Gestae</h2><p>Projects, publications, and notable achievements</p></div></div>
-    <div class="sec-block"><div class="sec-hdr" onclick="togSec(this)"><h3>Projects <span class="badge" id="projects-n">0</span></h3><span style="font-size:11px;color:var(--fg4)">▾</span></div><div class="sec-body"><div id="projects-list"></div><div class="tag-row"><input class="field-in" id="project-in" placeholder="Project name or description" style="flex:1" onkeydown="if(event.key==='Enter'){addTag('projects');event.preventDefault();}"><button class="btn btn-sm btn-ghost" onclick="addTag('projects')">Add</button></div></div></div>
-    <div class="sec-block"><div class="sec-hdr" onclick="togSec(this)"><h3>Publications <span class="badge" id="publications-n">0</span></h3><span style="font-size:11px;color:var(--fg4)">▾</span></div><div class="sec-body"><div id="publications-list"></div><div class="tag-row"><input class="field-in" id="publication-in" placeholder="e.g. 'Title', Journal, 2023" style="flex:1" onkeydown="if(event.key==='Enter'){addTag('publications');event.preventDefault();}"><button class="btn btn-sm btn-ghost" onclick="addTag('publications')">Add</button></div></div></div>
-    <div class="sec-block"><div class="sec-hdr" onclick="togSec(this)"><h3>Achievements <span class="badge" id="achievements-n">0</span></h3><span style="font-size:11px;color:var(--fg4)">▾</span></div><div class="sec-body"><div id="achievements-list"></div><div class="tag-row"><input class="field-in" id="achievement-in" placeholder="e.g. Presentation Excellence Award, 2024" style="flex:1" onkeydown="if(event.key==='Enter'){addTag('achievements');event.preventDefault();}"><button class="btn btn-sm btn-ghost" onclick="addTag('achievements')">Add</button></div></div></div>
+    <div class="wb-hdr"><div><h2>Res Gestae</h2><p>Published works, projects, open source contributions, and achievements</p></div></div>
+    <div class="sec-block"><div class="sec-hdr" onclick="togSec(this)"><h3>Projects &amp; Contributions <span class="badge" id="projects-n">0</span></h3><span style="font-size:11px;color:var(--fg4)">▾</span></div><div class="sec-body"><div id="projects-list"></div><button class="btn btn-sm btn-ghost" onclick="addRG('projects')" style="margin-top:8px">+ Add Project</button></div></div>
+    <div class="sec-block"><div class="sec-hdr" onclick="togSec(this)"><h3>Publications &amp; Working Papers <span class="badge" id="publications-n">0</span></h3><span style="font-size:11px;color:var(--fg4)">▾</span></div><div class="sec-body"><div id="publications-list"></div><button class="btn btn-sm btn-ghost" onclick="addRG('publications')" style="margin-top:8px">+ Add Publication</button></div></div>
+    <div class="sec-block"><div class="sec-hdr" onclick="togSec(this)"><h3>Achievements &amp; Recognition <span class="badge" id="achievements-n">0</span></h3><span style="font-size:11px;color:var(--fg4)">▾</span></div><div class="sec-body"><div id="achievements-list"></div><button class="btn btn-sm btn-ghost" onclick="addRG('achievements')" style="margin-top:8px">+ Add Achievement</button></div></div>
   </div>
 </div>
 
@@ -554,20 +554,47 @@ function renderJobs(){
 }
 function ag(el){if(el.target)el=el.target;el.style.height='auto';el.style.height=el.scrollHeight+'px'}
 
-/* ═══════ TAGS ═══════ */
+/* ═══════ TAGS (skills / languages / affiliations) ═══════ */
 function rTags(t){
-  const isList=['projects','publications','achievements'].includes(t);
-  const c=$(isList?`#${t}-list`:`#${t}-tags`);if(!c)return;
-  if(isList){c.innerHTML=(D[t]||[]).map((v,i)=>`<div class="list-item"><span style="flex:1">${esc(v)}</span><button class="blt-rm" onclick="rmTag('${t}',${i})" style="margin:0">×</button></div>`).join('')}
-  else{c.innerHTML=(D[t]||[]).map((v,i)=>`<span class="tpill">${esc(v)}<button onclick="rmTag('${t}',${i})">×</button></span>`).join('')}
-  const b=$(`#${t}-n`);if(b)b.textContent=(D[t]||[]).length;
+  const isRG=['projects','publications','achievements'].includes(t);
+  if(isRG){renderRG(t);return}
+  const c=$('#'+t+'-tags');if(!c)return;
+  c.innerHTML=(D[t]||[]).map((v,i)=>`<span class="tpill">${esc(v)}<button onclick="rmTag('${t}',${i})">×</button></span>`).join('');
+  const b=$('#'+t+'-n');if(b)b.textContent=(D[t]||[]).length;
 }
 function addTag(t){
-  const map={skills:'skill-in',languages:'language-in',affiliations:'affiliation-in',projects:'project-in',publications:'publication-in',achievements:'achievement-in'};
+  const map={skills:'skill-in',languages:'language-in',affiliations:'affiliation-in'};
   const inp=$('#'+map[t]);if(!inp)return;const v=inp.value.trim();if(!v)return;
   if(!D[t])D[t]=[];D[t].push(v);inp.value='';save();rTags(t);
 }
 function rmTag(t,i){D[t].splice(i,1);save();rTags(t)}
+
+/* ═══════ RES GESTAE ═══════ */
+function addRG(t){
+  if(!D[t])D[t]=[];
+  D[t].push({id:uid(),title:'',category:'',date:'',link:'',description:''});
+  save();renderRG(t);
+}
+function uRG(t,id,f,v){const x=D[t].find(i=>i.id===id);if(x){x[f]=v;save();}}
+function rmRG(t,id){D[t]=D[t].filter(x=>x.id!==id);save();renderRG(t);}
+function renderRG(t){
+  const c=$('#'+t+'-list');if(!c)return;
+  const ph={projects:{title:'e.g. U.S. Hunger Data Center',category:'e.g. Automation Testing, Open Source, QA',link:'https://github.com/...'},publications:{title:'e.g. Mechanism Design for Technology Governance',category:'e.g. Working Paper, Journal Article, Blog Post',link:'https://arxiv.org/...'},achievements:{title:'e.g. Predoc.org Advisory Board',category:'e.g. Fellowship, Award, Volunteer Role',link:''}}[t]||{};
+  c.innerHTML=(D[t]||[]).map(x=>`
+    <div class="card" style="margin-bottom:10px;padding:16px 18px">
+      <div style="display:flex;justify-content:space-between;align-items:start;gap:10px">
+        <div class="field" style="flex:1"><label class="field-lbl">Title</label><input class="field-in" value="${esc(x.title)}" placeholder="${ph.title||''}" oninput="uRG('${t}','${x.id}','title',this.value)"></div>
+        <button class="btn btn-sm btn-rm" onclick="rmRG('${t}','${x.id}')" style="margin-top:16px;white-space:nowrap">Remove</button>
+      </div>
+      <div class="grid g2" style="margin-top:10px">
+        <div class="field"><label class="field-lbl">Category / Type</label><input class="field-in" value="${esc(x.category)}" placeholder="${ph.category||''}" oninput="uRG('${t}','${x.id}','category',this.value)"></div>
+        <div class="field"><label class="field-lbl">Year or Date</label><input class="field-in" value="${esc(x.date)}" placeholder="2024" oninput="uRG('${t}','${x.id}','date',this.value)"></div>
+      </div>
+      <div class="field" style="margin-top:10px"><label class="field-lbl">Link (optional)</label><input class="field-in" value="${esc(x.link)}" placeholder="${ph.link||'https://...'}" oninput="uRG('${t}','${x.id}','link',this.value)"></div>
+      <div class="field" style="margin-top:10px"><label class="field-lbl">Description</label><textarea class="field-in" rows="2" placeholder="Brief description of your role, contribution, or impact..." oninput="uRG('${t}','${x.id}','description',this.value)">${esc(x.description)}</textarea></div>
+    </div>`).join('');
+  const b=$('#'+t+'-n');if(b)b.textContent=(D[t]||[]).length;
+}
 
 /* ═══════ EDUCATION ═══════ */
 function addEdu(){if(!D.education)D.education=[];D.education.push({id:uid(),degree:'',school:'',year:''});save();renderEdu()}
@@ -609,9 +636,9 @@ function renderCV(){
   if(D.skills.length)h+=`<div class="cv-sec-title">Skills</div><div class="cv-tags">${D.skills.map(s=>`<span class="cv-tag">${esc(s)}</span>`).join('')}</div>`;
   if(D.languages.length)h+=`<div class="cv-sec-title">Languages</div><div class="cv-detail">${D.languages.map(l=>esc(l)).join(' · ')}</div>`;
   if(D.affiliations.length)h+=`<div class="cv-sec-title">Affiliations</div><div class="cv-detail">${D.affiliations.map(a=>esc(a)).join(' · ')}</div>`;
-  if(D.projects.length){h+=`<div class="cv-sec-title">Projects</div>`;D.projects.forEach(p=>{h+=`<div class="cv-detail">· ${esc(p)}</div>`})}
-  if(D.publications.length){h+=`<div class="cv-sec-title">Publications</div>`;D.publications.forEach(p=>{h+=`<div class="cv-detail">· ${esc(p)}</div>`})}
-  if(D.achievements.length){h+=`<div class="cv-sec-title">Achievements</div>`;D.achievements.forEach(a=>{h+=`<div class="cv-detail">· ${esc(a)}</div>`})}
+  if(D.projects.length){h+=`<div class="cv-sec-title">Projects &amp; Contributions</div>`;D.projects.forEach(p=>{const isObj=typeof p==='object';const title=isObj?p.title:p;const meta=[isObj&&p.category,isObj&&p.date].filter(Boolean).join(' · ');h+=`<div class="cv-job" style="margin-bottom:14px"><div class="cv-job-row"><span class="cv-job-title" style="font-size:15px">${esc(title)}</span>${isObj&&p.date?`<span class="cv-job-dates">${esc(p.date)}</span>`:''}</div>${meta&&!isObj?'':`<div class="cv-job-company">${esc(p.category||'')}</div>`}${isObj&&p.link?`<div style="font-size:12.5px;margin:2px 0"><a href="${esc(p.link)}">${esc(p.link.replace(/^https?:\/\//,''))}</a></div>`:''}${isObj&&p.description?`<div class="cv-detail" style="margin-top:3px">${esc(p.description)}</div>`:''}</div>`})}
+  if(D.publications.length){h+=`<div class="cv-sec-title">Publications &amp; Working Papers</div>`;D.publications.forEach(p=>{const isObj=typeof p==='object';const title=isObj?p.title:p;h+=`<div class="cv-job" style="margin-bottom:14px"><div class="cv-job-row"><span class="cv-job-title" style="font-size:15px">${esc(title)}</span>${isObj&&p.date?`<span class="cv-job-dates">${esc(p.date)}</span>`:''}</div>${isObj&&p.category?`<div class="cv-job-company">${esc(p.category)}</div>`:''} ${isObj&&p.link?`<div style="font-size:12.5px;margin:2px 0"><a href="${esc(p.link)}">${esc(p.link.replace(/^https?:\/\//,''))}</a></div>`:''}${isObj&&p.description?`<div class="cv-detail" style="margin-top:3px">${esc(p.description)}</div>`:''}</div>`})}
+  if(D.achievements.length){h+=`<div class="cv-sec-title">Achievements &amp; Recognition</div>`;D.achievements.forEach(a=>{const isObj=typeof a==='object';const title=isObj?a.title:a;h+=`<div class="cv-job" style="margin-bottom:14px"><div class="cv-job-row"><span class="cv-job-title" style="font-size:15px">${esc(title)}</span>${isObj&&a.date?`<span class="cv-job-dates">${esc(a.date)}</span>`:''}</div>${isObj&&a.category?`<div class="cv-job-company">${esc(a.category)}</div>`:''} ${isObj&&a.link?`<div style="font-size:12.5px;margin:2px 0"><a href="${esc(a.link)}">${esc(a.link.replace(/^https?:\/\//,''))}</a></div>`:''}${isObj&&a.description?`<div class="cv-detail" style="margin-top:3px">${esc(a.description)}</div>`:''}</div>`})}
   el.innerHTML=h;
 }
 function downloadCV(){

@@ -520,6 +520,7 @@ function togSec(h){const b=h.nextElementSibling;b.classList.toggle('collapsed');
 /* ═══════ JOBS ═══════ */
 function addJob(){D.jobs.push({id:uid(),title:'',company:'',startMonth:'',startYear:'',endMonth:'',endYear:'',current:false,bullets:['']});save();renderJobs()}
 function rmJob(id){D.jobs=D.jobs.filter(j=>j.id!==id);save();renderJobs()}
+function moveJob(id,dir){const i=D.jobs.findIndex(j=>j.id===id);const n=i+dir;if(n<0||n>=D.jobs.length)return;[D.jobs[i],D.jobs[n]]=[D.jobs[n],D.jobs[i]];save();renderJobs()}
 function uJ(id,f,v){const j=D.jobs.find(x=>x.id===id);if(j){j[f]=v;save()}}
 function addB(id){const j=D.jobs.find(x=>x.id===id);if(j){j.bullets.push('');save();renderJobs()}}
 function uB(id,i,v){const j=D.jobs.find(x=>x.id===id);if(j){j.bullets[i]=v;save()}}
@@ -531,8 +532,12 @@ function renderJobs(){
   const c=$('#jobs-box');if(!c)return;
   c.innerHTML=D.jobs.map((j,i)=>`<div class="card">
     <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
-      <div class="card-label">Role ${i+1}</div>
-      <button class="btn btn-sm btn-rm" onclick="rmJob('${j.id}')">Remove</button>
+      <div class="card-label">Role ${i+1} of ${D.jobs.length}</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="btn btn-sm btn-ghost" onclick="moveJob('${j.id}',-1)" ${i===0?'disabled':''} style="padding:4px 8px;font-size:13px" title="Move up">↑</button>
+        <button class="btn btn-sm btn-ghost" onclick="moveJob('${j.id}',1)" ${i===D.jobs.length-1?'disabled':''} style="padding:4px 8px;font-size:13px" title="Move down">↓</button>
+        <button class="btn btn-sm btn-rm" onclick="rmJob('${j.id}')">Remove</button>
+      </div>
     </div>
     <div class="grid g2">
       <div class="field"><label class="field-lbl">Job Title</label><input class="field-in" value="${esc(j.title)}" placeholder="Research Software Engineer" oninput="uJ('${j.id}','title',this.value)"></div>
